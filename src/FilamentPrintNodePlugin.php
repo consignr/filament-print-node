@@ -5,7 +5,7 @@ namespace Consignr\FilamentPrintNode;
 use Filament\Panel;
 use Filament\Contracts\Plugin;
 
-class FilamentPrintNodePlugin extends Plugin
+class FilamentPrintNodePlugin implements Plugin
 {
     public function getId(): string
     {
@@ -21,12 +21,12 @@ class FilamentPrintNodePlugin extends Plugin
     {
         $panel
             ->resources([
-                // PostResource::class,
-                // CategoryResource::class,
+                //
             ])
             ->pages([
-                // Settings::class,
-            ]);
+                //
+            ])
+            ->discoverClusters(in: __DIR__.'\Clusters', for: 'Consignr\\FilamentPrintNode\\Clusters');
     }
  
     public function boot(Panel $panel): void

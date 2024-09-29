@@ -9,5 +9,7 @@
         }
     },
     "minimum-stability": "dev",
-    "require": {}
+    "require": {
+        "calebporzio/sushi" : "^2.5"
+    }
 }
