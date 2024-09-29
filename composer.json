@@ -1,0 +1,13 @@
+{
+    "name": "consignr/filament-print-node",
+    "description": "A collection of filament resources to manage your printnode accoutn from the admin panel",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Consignr\\FilamentPrintNode\\": "src/"
+        }
+    },
+    "minimum-stability": "dev",
+    "require": {}
+}
