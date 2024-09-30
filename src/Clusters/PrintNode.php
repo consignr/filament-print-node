@@ -6,5 +6,5 @@ use Filament\Clusters\Cluster;
 
 class PrintNode extends Cluster
 {
-    protected static ?string $navigationIcon = 'heroicon-o-printer';
+    protected static ?string $navigationIcon = 'heroicon-o-command-line';
 }

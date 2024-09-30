@@ -20,7 +20,7 @@ class PrinterResource extends Resource
 {
     protected static ?string $model = Printer::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-printer';
 
     protected static ?string $cluster = PrintNode::class;
 
