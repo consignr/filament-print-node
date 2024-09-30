@@ -75,8 +75,6 @@ class PrinterResource extends Resource
     {
         return [
             'index' => Pages\ListPrinters::route('/'),
-            'create' => Pages\CreatePrinter::route('/create'),
-            'edit' => Pages\EditPrinter::route('/{record}/edit'),
         ];
     }
 }
