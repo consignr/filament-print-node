@@ -6,10 +6,15 @@ use Sushi\Sushi;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Database\Eloquent\Model;
+use Consignr\FilamentPrintNode\Enums\ComputerState;
 
 class Computer extends Model
 {
     use Sushi;
+
+    protected $casts = [
+        'state' => ComputerState::class
+    ];
  
     /**
      * Model Rows
