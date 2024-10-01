@@ -8,7 +8,11 @@ use Filament\Forms\Form;
 
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
+use Illuminate\Support\HtmlString;
+use Illuminate\Support\Facades\Blade;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\SelectColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Consignr\FilamentPrintNode\Models\Printer;
 use Consignr\FilamentPrintNode\Clusters\PrintNode;
@@ -40,14 +44,19 @@ class PrinterResource extends Resource
                 TextColumn::make('id')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('name')
-                    ->description(fn (Printer $record): string => $record->description)
+                TextColumn::make('description')
+                    ->description(description: function (Printer $record) { 
+                        if ($record->default) {
+                            return new HtmlString("<div class='flex gap-3 align-top'><p class='text-sm text-gray-500 dark:text-gray-400'>".$record->name."</p>".Blade::render('<x-filament::badge color="info">Default</x-filament::badge></div>'));
+                        }
+
+                        return $record->name;                        
+                    }, position: 'below')
                     ->searchable(),
                 TextColumn::make('state')
                     ->color('default')
                     ->iconColor(fn (PrinterState $state): string => $state->getColor())
                     ->icon(fn (PrinterState $state): string => $state->getIcon()),
-                
                 TextColumn::make('createTimestamp')
                     ->dateTime()
                     ->label('Created at')
