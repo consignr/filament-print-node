@@ -12,6 +12,7 @@ use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Consignr\FilamentPrintNode\Models\Printer;
 use Consignr\FilamentPrintNode\Clusters\PrintNode;
+use Consignr\FilamentPrintNode\Enums\PrinterState;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Consignr\FilamentPrintNode\Clusters\PrintNode\Resources\PrinterResource\Pages;
 use Consignr\FilamentPrintNode\Clusters\PrintNode\Resources\PrinterResource\RelationManagers;
@@ -40,11 +41,12 @@ class PrinterResource extends Resource
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('name')
+                    ->description(fn (Printer $record): string => $record->description)
                     ->searchable(),
-                TextColumn::make('state'),
-                    // ->color('default')
-                    // ->iconColor(fn ($state) => $state->getColor())
-                    // ->icon(fn ($state) => $state->getIcon()),
+                TextColumn::make('state')
+                    ->color('default')
+                    ->iconColor(fn (PrinterState $state): string => $state->getColor())
+                    ->icon(fn (PrinterState $state): string => $state->getIcon()),
                 
                 TextColumn::make('createTimestamp')
                     ->dateTime()

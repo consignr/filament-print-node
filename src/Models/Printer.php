@@ -2,6 +2,7 @@
 
 namespace Consignr\FilamentPrintNode\Models;
 
+use Consignr\FilamentPrintNode\Enums\PrinterState;
 use Sushi\Sushi;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
@@ -10,6 +11,10 @@ use Illuminate\Database\Eloquent\Model;
 class Printer extends Model
 {
     use Sushi;
+
+    protected $casts = [
+        'state' => PrinterState::class
+    ];
     
     /**
      * Model Rows
