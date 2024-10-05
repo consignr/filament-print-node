@@ -14,7 +14,8 @@ class Computer extends Model
     use Sushi;
 
     protected $casts = [
-        'state' => ComputerState::class
+        'state' => ComputerState::class,
+        'createTimestamp' => 'datetime'
     ];
  
     /**

@@ -2,6 +2,7 @@
 
 namespace Consignr\FilamentPrintNode\Clusters\PrintNode\Resources;
 
+use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
@@ -11,8 +12,10 @@ use Filament\Resources\Resource;
 use Filament\Support\Enums\IconSize;
 use Illuminate\Support\Facades\Http;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Infolists\Components\Group;
 use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
 use Consignr\FilamentPrintNode\Models\Computer;
 use Consignr\FilamentPrintNode\Clusters\PrintNode;
@@ -41,14 +44,36 @@ class ComputerResource extends Resource
     {
         return $infolist
             ->schema([
-                TextEntry::make('name'),
-                TextEntry::make('inet'),
-                TextEntry::make('state'),
-                TextEntry::make('hostname'),
-                TextEntry::make('version'),
-                TextEntry::make('inet6'),
-                TextEntry::make('jre'),
-                TextEntry::make('createTimestamp'),
+                Group::make([
+                    Section::make('View')
+                        ->columnSpan(2)
+                        ->heading(null)
+                        ->columns(2)
+                        ->schema([
+                            TextEntry::make('name'),
+                            TextEntry::make('inet')->label('IP Address'),
+                            TextEntry::make('state')
+                                ->color('default')
+                                ->iconColor(fn (ComputerState $state): string => $state->getColor()),
+                            TextEntry::make('hostname'),
+                            TextEntry::make('version')->placeholder('-'),
+                            TextEntry::make('inet6')->label('IPv6 Address')->placeholder('-'),
+                            TextEntry::make('jre')->label('Java Runtime Env.')->placeholder('-'),
+                        ]),
+                    Section::make('ViewCreated')
+                        ->columnSpan(1)
+                        ->heading(null)
+                        ->schema([                            
+                            TextEntry::make('createTimestamp')
+                                ->dateTime()
+                                ->helperText(fn (Carbon $state) => $state->diffForHumans())
+                                ->label('Created At'),
+                        ])
+                ])
+                ->columnSpanFull()
+                ->columns(3)
+                
+                
             ]);
     }
 
