@@ -41,24 +41,32 @@ class ComputerResource extends Resource
             ->columns([
                 TextColumn::make('id')
                     ->searchable()
+                        ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('name')
+                    ->sortable()
                     ->searchable(),
                 TextColumn::make('inet')
+                    ->sortable()
                     ->searchable(),
                 TextColumn::make('state')
+                    ->sortable()
                     ->color('default')
                     ->iconColor(fn ($state) => $state->getColor())
                     ->icon(fn ($state) => $state->getIcon()),
                 TextColumn::make('inet6')
+                    ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('hostname')
+                    ->sortable()
                     ->searchable(),
-                TextColumn::make('version'),
+                TextColumn::make('version')
+                    ->sortable(),
                 TextColumn::make('jre')
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('createTimestamp')
                     ->dateTime()
+                        ->sortable()
                     ->label('Created at'),
                 
             ])
