@@ -20,4 +20,9 @@ class ViewComputer extends ViewRecord
     {
        return 'View Computer'; 
     }
+
+    public function hasCombinedRelationManagerTabsWithContent(): bool
+    {
+        return true;
+    }
 }
