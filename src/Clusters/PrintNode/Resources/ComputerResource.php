@@ -83,12 +83,13 @@ class ComputerResource extends Resource
             ->columns([
                 TextColumn::make('id')
                     ->searchable()
-                        ->sortable()
+                    ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('name')
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('inet')
+                    ->label('IP Address')
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('state')
@@ -97,6 +98,7 @@ class ComputerResource extends Resource
                     ->iconColor(fn ($state) => $state->getColor())
                     ->icon(fn ($state) => $state->getIcon()),
                 TextColumn::make('inet6')
+                    ->label('IPv6 Address')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('hostname')
@@ -105,6 +107,7 @@ class ComputerResource extends Resource
                 TextColumn::make('version')
                     ->sortable(),
                 TextColumn::make('jre')
+                    ->label('Java Runtime Env.')
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('createTimestamp')
                     ->dateTime()
