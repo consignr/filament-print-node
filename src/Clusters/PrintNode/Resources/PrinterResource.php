@@ -23,6 +23,7 @@ use Consignr\FilamentPrintNode\Clusters\PrintNode;
 use Consignr\FilamentPrintNode\Enums\PrinterState;
 use Consignr\FilamentPrintNode\Clusters\PrintNode\Resources\PrinterResource\Pages;
 use Consignr\FilamentPrintNode\Clusters\PrintNode\Resources\PrinterResource\RelationManagers;
+use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Support\Enums\MaxWidth;
 
 class PrinterResource extends Resource
@@ -153,7 +154,7 @@ class PrinterResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\PrintJobsRelationManager::class
         ];
     }
 
