@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Consignr\FilamentPrintNode\Enums\PrinterState;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Printer extends Model
 {
@@ -219,6 +220,11 @@ class Printer extends Model
         })->toArray();
 
         return $printers;
+    }
+
+    public function printJobs(): HasMany
+    {
+        return $this->hasMany(\Consignr\FilamentPrintNode\Models\PrintJob::class);
     }
 
     public function computer(): BelongsTo

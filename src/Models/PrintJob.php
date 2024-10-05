@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Consignr\FilamentPrintNode\Enums\PrintJobState;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PrintJob extends Model
 {
@@ -78,6 +79,7 @@ class PrintJob extends Model
             $computer = Arr::pull($printer, 'computer');
 
             $item['printer'] = json_encode($printer);
+            $item['printer_id'] = $printer['id'];
             $item['computer'] = json_encode($computer);
             
             return Arr::only($item,
@@ -90,11 +92,17 @@ class PrintJob extends Model
                     'createTimestamp',
                     'state',
                     'printer',
+                    'printer_id',
                     'computer'
                 ]
             );
         });
 
         return $jobs;
+    }
+
+    public function printer(): BelongsTo
+    {
+        return $this->belongsTo(\Consignr\FilamentPrintNode\Models\Printer::class);
     }
 }
