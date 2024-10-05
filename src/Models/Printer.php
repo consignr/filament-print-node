@@ -3,10 +3,12 @@
 namespace Consignr\FilamentPrintNode\Models;
 
 use Sushi\Sushi;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Consignr\FilamentPrintNode\Enums\PrinterState;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Printer extends Model
 {
@@ -194,7 +196,9 @@ class Printer extends Model
                          ->get('https://api.printnode.com/printers')->json();
        
         //filtering some attributes
-        $printers = collect($printers)->map(function ($item, $key) {
+        $printers = collect($printers)->map(function ($item) {
+            $computer = Arr::pull($item, 'computer');
+            $item['computer_id'] = $computer['id'];
             return collect($item)->map(function ($i, $k) {
                 
                 if ($k === 'capabilities') {
@@ -209,10 +213,16 @@ class Printer extends Model
                 "default",
                 "createTimestamp",
                 "state",
-                "capabilities"
+                "capabilities",
+                'computer_id'
             ]);
         })->toArray();
 
         return $printers;
+    }
+
+    public function computer(): BelongsTo
+    {
+        return $this->belongsTo(\Consignr\FilamentPrintNode\Models\Computer::class);
     }
 }

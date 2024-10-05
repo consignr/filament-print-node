@@ -66,6 +66,7 @@ class ComputerResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\Action::make('delete_computer_set')
                     ->action(function ($record, $livewire) {
                         
@@ -95,7 +96,7 @@ class ComputerResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\PrintersRelationManager::class
         ];
     }
 
@@ -103,6 +104,7 @@ class ComputerResource extends Resource
     {
         return [
             'index' => Pages\ListComputers::route('/'),
+            'view' => Pages\ViewComputer::route('/{record}')
         ];
     }
 }

@@ -7,6 +7,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Database\Eloquent\Model;
 use Consignr\FilamentPrintNode\Enums\ComputerState;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Computer extends Model
 {
@@ -45,5 +46,10 @@ class Computer extends Model
         });
  
         return $computers;
+    }
+
+    public function printers(): HasMany
+    {
+        return $this->hasMany(\Consignr\FilamentPrintNode\Models\Printer::class);
     }
 }
