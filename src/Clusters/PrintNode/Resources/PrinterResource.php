@@ -64,12 +64,12 @@ class PrinterResource extends Resource
                                     ->suffix(fn (?array $state): float => $state ? $state['unit'] : null)
                                     ->placeholder('-'),
                                 IconEntry::make('supports_custom_paper_size')->boolean(),
-                                Fieldset::make('SupportedWidth')
+                                Fieldset::make('Supported Width')
                                     ->schema([
                                         TextEntry::make('minimum_supported_width')->formatStateUsing(fn (int $state): int => $state/10)->suffix('mm')->label('Minimum'),
                                         TextEntry::make('maximum_supported_width')->formatStateUsing(fn (int $state): int => $state/10)->suffix('mm')->label('Maximum'),
                                     ]),
-                                Fieldset::make('SupportedHeight')
+                                Fieldset::make('Supported Height')
                                     ->schema([
                                         TextEntry::make('minimum_supported_height')->formatStateUsing(fn (int $state): int => $state/10)->suffix('mm')->label('Minimum'),                                
                                         TextEntry::make('maximum_supported_height')->formatStateUsing(fn (int $state): int => $state/10)->suffix('mm')->label('Maximum'),
