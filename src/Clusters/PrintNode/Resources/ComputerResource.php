@@ -66,7 +66,7 @@ class ComputerResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
+                Tables\Actions\ViewAction::make()->hiddenLabel(),
                 Tables\Actions\Action::make('delete_computer_set')
                     ->action(function ($record, $livewire) {
                         
