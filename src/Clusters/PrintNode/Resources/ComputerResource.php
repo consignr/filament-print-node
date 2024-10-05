@@ -6,18 +6,20 @@ use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Support\Enums\IconSize;
 use Illuminate\Support\Facades\Http;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Infolists\Components\TextEntry;
 use Consignr\FilamentPrintNode\Models\Computer;
 use Consignr\FilamentPrintNode\Clusters\PrintNode;
 use Consignr\FilamentPrintNode\Enums\ComputerState;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Consignr\FilamentPrintNode\Clusters\PrintNode\Resources\ComputerResource\Pages;
 use Consignr\FilamentPrintNode\Clusters\PrintNode\Resources\ComputerResource\RelationManagers;
-use Filament\Notifications\Notification;
 
 class ComputerResource extends Resource
 {
@@ -32,6 +34,21 @@ class ComputerResource extends Resource
         return $form
             ->schema([
                 //
+            ]);
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                TextEntry::make('name'),
+                TextEntry::make('inet'),
+                TextEntry::make('state'),
+                TextEntry::make('hostname'),
+                TextEntry::make('version'),
+                TextEntry::make('inet6'),
+                TextEntry::make('jre'),
+                TextEntry::make('createTimestamp'),
             ]);
     }
 
