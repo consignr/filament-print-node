@@ -6,12 +6,16 @@ use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Illuminate\Support\Carbon;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Illuminate\Support\HtmlString;
+use Filament\Support\Enums\MaxWidth;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Blade;
 use Filament\Infolists\Components\Tabs;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Infolists\Components\Group;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\Fieldset;
@@ -21,10 +25,9 @@ use Filament\Infolists\Components\TextEntry;
 use Consignr\FilamentPrintNode\Models\Printer;
 use Consignr\FilamentPrintNode\Clusters\PrintNode;
 use Consignr\FilamentPrintNode\Enums\PrinterState;
+use Filament\Resources\RelationManagers\RelationManager;
 use Consignr\FilamentPrintNode\Clusters\PrintNode\Resources\PrinterResource\Pages;
 use Consignr\FilamentPrintNode\Clusters\PrintNode\Resources\PrinterResource\RelationManagers;
-use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Support\Enums\MaxWidth;
 
 class PrinterResource extends Resource
 {
@@ -46,65 +49,34 @@ class PrinterResource extends Resource
     {
         return $infolist
             ->schema([
-                Tabs::make('Capabilities')
-                    ->contained(false)
-                    ->columnSpanFull()
-                    ->schema([
-                        Tab::make('General')
-                            ->columns(2)
-                            ->schema([
-                                TextEntry::make('tray_names')->listWithLineBreaks()->separator(',')->placeholder('-'),
-                                TextEntry::make('supported_dpis')->listWithLineBreaks()->label('Supported DPI\'s'),
-                                IconEntry::make('collate')->boolean()->label('Collation Support'),
-                                TextEntry::make('copies')->label('Maximum copies'),
-                                IconEntry::make('color')->boolean()->label('Colour Support'),                                
-                                IconEntry::make('duplex')->boolean()->label('Duplex Support'),                
-                                TextEntry::make('n_up_printing')->listWithLineBreaks()->separator(',')->placeholder('-'), 
-                                TextEntry::make('printrate')
-                                    ->formatStateUsing(fn (?array $state): float => $state ? $state['rate'] : null)
-                                    ->suffix(fn (?array $state): float => $state ? $state['unit'] : null)
-                                    ->placeholder('-'),
-                                IconEntry::make('supports_custom_paper_size')->boolean(),
-                                Fieldset::make('Supported Width')
-                                    ->schema([
-                                        TextEntry::make('minimum_supported_width')->formatStateUsing(fn (int $state): int => $state/10)->suffix('mm')->label('Minimum'),
-                                        TextEntry::make('maximum_supported_width')->formatStateUsing(fn (int $state): int => $state/10)->suffix('mm')->label('Maximum'),
-                                    ]),
-                                Fieldset::make('Supported Height')
-                                    ->schema([
-                                        TextEntry::make('minimum_supported_height')->formatStateUsing(fn (int $state): int => $state/10)->suffix('mm')->label('Minimum'),                                
-                                        TextEntry::make('maximum_supported_height')->formatStateUsing(fn (int $state): int => $state/10)->suffix('mm')->label('Maximum'),
-                                    ]),
-                            ]),
-                        Tab::make('Media')
-                            ->schema([
-                                TextEntry::make('media_names')->listWithLineBreaks()->separator(',')->placeholder('-')
-                            ]),
-                        Tab::make('Papers')
-                            ->schema(function ($record) {
-                                $papers = [];
-                                foreach ($record->papers as $key => $paper) {
-                                    $papers[] = Section::make(null)
-                                        ->description($key)
-                                        ->collapsible()
-                                        ->collapsed()
-                                        ->compact()
-                                        ->columns(2)
-                                        ->schema([
-                                            TextEntry::make('width')
-                                                ->getStateUsing(fn () => $paper['width'])
-                                                ->formatStateUsing(fn (int $state): int => $state/10)
-                                                ->suffix('mm'),
-                                            TextEntry::make('height')
-                                                ->getStateUsing(fn () => $paper['height'])
-                                                ->formatStateUsing(fn (int $state): int => $state/10)
-                                                ->suffix('mm')
-                                        ]);
-                                }
-
-                                return $papers;
-                            }),
-                    ])
+                Group::make([
+                    Section::make('View')
+                        ->columnSpan(2)
+                        ->heading(null)
+                        ->columns(3)
+                        ->schema([
+                            TextEntry::make('name'),
+                            TextEntry::make('description'),
+                            TextEntry::make('computer.name')
+                                ->helperText(fn (Printer $record): string => $record->computer->inet),
+                            TextEntry::make('state')
+                                ->color('default')
+                                ->iconColor(fn (PrinterState $state): string => $state->getColor()),
+                            IconEntry::make('default')
+                                ->boolean(),
+                        ]),
+                    Section::make('ViewCreated')
+                        ->columnSpan(1)
+                        ->heading(null)
+                        ->schema([                            
+                            TextEntry::make('createTimestamp')
+                                ->dateTime()
+                                ->helperText(fn (Carbon $state) => $state->diffForHumans())
+                                ->label('Created At'),
+                        ])
+                ])
+                ->columnSpanFull()
+                ->columns(3)
              ]);
     }
 
@@ -137,12 +109,95 @@ class PrinterResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make()
-                    ->label('Capabilities')
-                    ->icon('heroicon-o-information-circle')
+                Tables\Actions\ViewAction::make()->iconButton(),
+                Tables\Actions\Action::make('capabilities')
+                    ->icon('heroicon-s-information-circle')
+                    ->iconButton()
+                    ->color('info')
                     ->slideOver()
+                    ->infolist([
+                        Tabs::make('Capabilities')
+                            ->contained(false)
+                            ->columnSpanFull()
+                            ->schema([
+                                Tab::make('General')
+                                    ->columns(2)
+                                    ->schema([
+                                        TextEntry::make('tray_names')->listWithLineBreaks()->separator(',')->placeholder('-'),
+                                        TextEntry::make('supported_dpis')->listWithLineBreaks()->label('Supported DPI\'s'),
+                                        IconEntry::make('collate')->boolean()->label('Collation Support'),
+                                        TextEntry::make('copies')->label('Maximum copies'),
+                                        IconEntry::make('color')->boolean()->label('Colour Support'),                                
+                                        IconEntry::make('duplex')->boolean()->label('Duplex Support'),                
+                                        TextEntry::make('n_up_printing')->listWithLineBreaks()->separator(',')->placeholder('-'), 
+                                        TextEntry::make('printrate')
+                                            ->formatStateUsing(fn (?array $state): float => $state ? $state['rate'] : null)
+                                            ->suffix(fn (?array $state): float => $state ? $state['unit'] : null)
+                                            ->placeholder('-'),
+                                        IconEntry::make('supports_custom_paper_size')->boolean(),
+                                        Fieldset::make('Supported Width')
+                                            ->schema([
+                                                TextEntry::make('minimum_supported_width')->formatStateUsing(fn (int $state): int => $state/10)->suffix('mm')->label('Minimum'),
+                                                TextEntry::make('maximum_supported_width')->formatStateUsing(fn (int $state): int => $state/10)->suffix('mm')->label('Maximum'),
+                                            ]),
+                                        Fieldset::make('Supported Height')
+                                            ->schema([
+                                                TextEntry::make('minimum_supported_height')->formatStateUsing(fn (int $state): int => $state/10)->suffix('mm')->label('Minimum'),                                
+                                                TextEntry::make('maximum_supported_height')->formatStateUsing(fn (int $state): int => $state/10)->suffix('mm')->label('Maximum'),
+                                            ]),
+                                    ]),
+                                Tab::make('Media')
+                                    ->schema([
+                                        TextEntry::make('media_names')->listWithLineBreaks()->separator(',')->placeholder('-')
+                                    ]),
+                                Tab::make('Papers')
+                                    ->schema(function ($record) {
+                                        $papers = [];
+                                        foreach ($record->papers as $key => $paper) {
+                                            $papers[] = Section::make(null)
+                                                ->description($key)
+                                                ->collapsible()
+                                                ->collapsed()
+                                                ->compact()
+                                                ->columns(2)
+                                                ->schema([
+                                                    TextEntry::make('width')
+                                                        ->getStateUsing(fn () => $paper['width'])
+                                                        ->formatStateUsing(fn (int $state): int => $state/10)
+                                                        ->suffix('mm'),
+                                                    TextEntry::make('height')
+                                                        ->getStateUsing(fn () => $paper['height'])
+                                                        ->formatStateUsing(fn (int $state): int => $state/10)
+                                                        ->suffix('mm')
+                                                ]);
+                                        }
+
+                                        return $papers;
+                                    }),
+                                ])
+                    ])
                     ->modalHeading('Printer Capabilities')
-                    ->modalWidth(MaxWidth::Large)
+                    ->modalSubmitAction(false)
+                    ->modalCancelAction(false)
+                    ->modalWidth(MaxWidth::Large),
+                Tables\Actions\Action::make('cancel_printer_print_job_set')
+                    ->action(function ($record, $livewire) {
+
+                        $cancelRequest = Http::withBasicAuth(env('PRINTNODE_API_KEY'), env('PRINTNODE_PASSWORD'))
+                            ->delete("https://api.printnode.com/printers/{$record->id}/printjobs");
+
+                        if ($cancelRequest->successful()) {
+                            $livewire->success();
+                        }
+                    })
+                    ->requiresConfirmation()
+                    ->label('Cancel all print jobs')
+                    ->modalDescription('Are you sure you\'d like to cancel all print jobs for this printer?')
+                    ->modalSubmitActionLabel('cancel')
+                    ->icon('heroicon-s-x-circle')
+                    ->iconButton()
+                    ->color('danger')
+                    ->successNotificationTitle('Print Jobs Cancelled')
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -162,6 +217,7 @@ class PrinterResource extends Resource
     {
         return [
             'index' => Pages\ListPrinters::route('/'),
+            'view' => Pages\ViewPrinter::route('/{record}')
         ];
     }
 }

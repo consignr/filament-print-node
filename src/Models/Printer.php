@@ -17,7 +17,8 @@ class Printer extends Model
 
     protected $casts = [
         'state' => PrinterState::class,
-        'capabilities' => 'array'
+        'capabilities' => 'array',
+        'createTimestamp' => 'datetime'
     ];
 
     /**

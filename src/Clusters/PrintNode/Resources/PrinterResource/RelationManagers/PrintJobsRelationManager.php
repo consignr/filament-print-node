@@ -31,6 +31,6 @@ class PrintJobsRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
-        return PrintJob::table($table);
+        return PrintJobResource::table($table);
     }
 }

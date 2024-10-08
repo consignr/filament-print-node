@@ -7,6 +7,7 @@ use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
+use Illuminate\Support\Facades\Http;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Consignr\FilamentPrintNode\Models\PrintJob;
@@ -75,7 +76,25 @@ class PrintJobResource extends Resource
                 //
             ])
             ->actions([
-                //
+                Tables\Actions\Action::make('cancel_print_job_set')
+                    ->action(function ($record, $livewire) {
+                        
+                        $cancelRequest = Http::withBasicAuth(env('PRINTNODE_API_KEY'), env('PRINTNODE_PASSWORD'))
+                            ->delete('https://api.printnode.com/printjobs'[$record->id]);
+
+                        if ($cancelRequest->successful()) {
+                            $livewire->success();
+                        }
+                    })
+                    ->disabled(fn (PrintJob $record): bool => $record->state === PrintJobState::Done)
+                    ->requiresConfirmation()
+                    ->label('Cancel print job')
+                    ->modalDescription('Are you sure you\'d like to cancel this print job?')
+                    ->modalSubmitActionLabel('cancel')
+                    ->icon('heroicon-s-x-circle')
+                    ->iconButton()
+                    ->color('danger')
+                    ->successNotificationTitle('Print Job Cancelled')
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
