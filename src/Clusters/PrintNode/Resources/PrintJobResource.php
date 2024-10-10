@@ -77,13 +77,13 @@ class PrintJobResource extends Resource
             ])
             ->actions([
                 Tables\Actions\Action::make('cancel_print_job_set')
-                    ->action(function ($record, $livewire) {
+                    ->action(function (PrintJob $record, Tables\Actions\Action $action) {
                         
                         $cancelRequest = Http::withBasicAuth(env('PRINTNODE_API_KEY'), env('PRINTNODE_PASSWORD'))
                             ->delete('https://api.printnode.com/printjobs'[$record->id]);
 
-                        if ($cancelRequest->successful()) {
-                            $livewire->success();
+                        if ($cancelRequest->ok() && filled($cancelRequest->json())) {
+                            $action->success();
                         }
                     })
                     ->disabled(fn (PrintJob $record): bool => $record->state === PrintJobState::Done)
