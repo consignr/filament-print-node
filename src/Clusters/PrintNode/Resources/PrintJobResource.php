@@ -2,16 +2,22 @@
 
 namespace Consignr\FilamentPrintNode\Clusters\PrintNode\Resources;
 
+use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
+use Filament\Tables\Actions\Action;
+use Filament\Support\Enums\MaxWidth;
 use Illuminate\Support\Facades\Http;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Infolists\Components\Group;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Infolists\Components\TextEntry;
 use Consignr\FilamentPrintNode\Models\PrintJob;
 use Consignr\FilamentPrintNode\Clusters\PrintNode;
+use Filament\Infolists\Components\RepeatableEntry;
 use Consignr\FilamentPrintNode\Enums\PrintJobState;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Consignr\FilamentPrintNode\Clusters\PrintNode\Resources\PrintJobResource\Pages;
@@ -76,6 +82,48 @@ class PrintJobResource extends Resource
                 //
             ])
             ->actions([
+                Action::make('state_history')
+                    ->action(fn () => null) 
+                    ->iconButton()
+                    ->icon('heroicon-s-clock')
+                    ->color('info')
+                    ->modalWidth(MaxWidth::SixExtraLarge)
+                    ->modalSubmitAction(false)   
+                    ->modalCancelAction(false)                        
+                    ->infolist(function (PrintJob $record, $infolist) {
+
+                        $stateResponse = Http::withBasicAuth(env('PRINTNODE_API_KEY'), env('PRINTNODE_PASSWORD'))
+                            ->get("https://api.printnode.com/printjobs/{$record->id}/states");
+
+                        if ($stateResponse->ok()) {
+                            // dd($stateResponse->json());
+                            $state = ['state' => $stateResponse->json()[0]];
+                            $infolist->state($state);
+                        } 
+
+                        return [
+                            Group::make([
+                                TextEntry::make('age')->state(null),
+                                TextEntry::make('client')->state(null)->alignCenter(),
+                                TextEntry::make('created_at')->state(null)->columnSpan(2)->alignCenter(),
+                                TextEntry::make('message')->state(null)->columnSpan(6),
+                                TextEntry::make('status')->state(null)->columnSpan(2)
+                            ])->columns(12),
+                            RepeatableEntry::make('state')
+                                ->hiddenLabel()
+                                ->columns(12)
+                                ->schema([
+                                    TextEntry::make('age')->hiddenLabel(),
+                                    TextEntry::make('clientVersion')->hiddenLabel(),
+                                    TextEntry::make('createTimestamp')
+                                        ->hiddenLabel()
+                                        ->formatStateUsing(fn ($state) => Carbon::parse($state)->format('d M Y H:i:s'))
+                                        ->columnSpan(2),
+                                    TextEntry::make('message')->hiddenLabel()->columnSpan(6),
+                                    TextEntry::make('state')->hiddenLabel()->columnSpan(2)->badge()
+                                ])                                
+                            ];
+                    }),
                 Tables\Actions\Action::make('cancel_print_job_set')
                     ->action(function (PrintJob $record, Tables\Actions\Action $action) {
                         
