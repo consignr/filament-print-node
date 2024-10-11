@@ -51,6 +51,7 @@ class PrintJobsRelationManager extends RelationManager
                             $action->failure();
                         }
                     })
+                    ->disabled(fn (): bool => $this->ownerRecord->printJobs()->count() === 0)
                     ->requiresConfirmation()
                     ->label('Cancel All')
                     ->modalDescription('Are you sure you\'d like to cancel all print jobs for this printer?')
