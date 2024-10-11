@@ -181,23 +181,23 @@ class PrinterResource extends Resource
                     ->modalCancelAction(false)
                     ->modalWidth(MaxWidth::Large),
                 Tables\Actions\Action::make('cancel_printer_print_job_set')
-                    ->action(function ($record, $livewire) {
+                    ->action(function (Printer $record, Tables\Actions\Action $action) {
 
-                        $cancelRequest = Http::withBasicAuth(env('PRINTNODE_API_KEY'), env('PRINTNODE_PASSWORD'))
+                        $cancelResponse = Http::withBasicAuth(env('PRINTNODE_API_KEY'), env('PRINTNODE_PASSWORD'))
                             ->delete("https://api.printnode.com/printers/{$record->id}/printjobs");
 
-                        if ($cancelRequest->successful()) {
-                            $livewire->success();
+                        if ($cancelResponse->ok()) {
+                            $action->success();
                         }
                     })
                     ->requiresConfirmation()
                     ->label('Cancel all print jobs')
                     ->modalDescription('Are you sure you\'d like to cancel all print jobs for this printer?')
-                    ->modalSubmitActionLabel('cancel')
+                    ->modalSubmitActionLabel('Proceed')
                     ->icon('heroicon-s-x-circle')
                     ->iconButton()
                     ->color('danger')
-                    ->successNotificationTitle('Print Jobs Cancelled')
+                    ->successNotificationTitle('Print jobs cancelled')
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
