@@ -12,6 +12,8 @@ enum PrintJobState: string implements HasLabel, HasColor
     case Done = 'done';
     case Error = 'error';
     case Expired = 'expired';
+    case Queued = 'queued';
+    case InProgress = 'in_progress';
 
     public function getLabel(): string
     {
@@ -20,7 +22,9 @@ enum PrintJobState: string implements HasLabel, HasColor
             self::SentToClient => 'Sent to Client',
             self::Done => 'Done',
             self::Error => 'Error',
-            self::Expired => 'Expired'
+            self::Expired => 'Expired',
+            self::Queued => 'Queued',
+            self::InProgress => 'In Progress'
         };
     }
 
@@ -28,10 +32,12 @@ enum PrintJobState: string implements HasLabel, HasColor
     {
         return match($this) {
             self::New => 'info',
-            self::SentToClient => 'default',
+            self::SentToClient => 'info',
             self::Done => 'success',
             self::Error => 'danger',
-            self::Expired => 'warning'
+            self::Expired => 'warning',
+            self::Queued => 'default',
+            self::InProgress => 'primary'
         };
     }
 }

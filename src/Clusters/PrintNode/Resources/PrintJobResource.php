@@ -2,6 +2,7 @@
 
 namespace Consignr\FilamentPrintNode\Clusters\PrintNode\Resources;
 
+use Exception;
 use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Tables;
@@ -13,6 +14,7 @@ use Filament\Support\Enums\MaxWidth;
 use Illuminate\Support\Facades\Http;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Infolists\Components\Group;
+use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Infolists\Components\TextEntry;
 use Consignr\FilamentPrintNode\Models\PrintJob;
@@ -92,35 +94,53 @@ class PrintJobResource extends Resource
                     ->modalCancelAction(false)                        
                     ->infolist(function (PrintJob $record, $infolist) {
 
-                        $stateResponse = Http::withBasicAuth(env('PRINTNODE_API_KEY'), env('PRINTNODE_PASSWORD'))
-                            ->get("https://api.printnode.com/printjobs/{$record->id}/states");
+                            $stateResponse = Http::withBasicAuth(env('PRINTNODE_API_KEY'), env('PRINTNODE_PASSWORD'))
+                                ->get("https://api.printnode.com/printjobs/{$record->id}/states");
 
-                        if ($stateResponse->ok()) {
-                            // dd($stateResponse->json());
-                            $state = ['state' => $stateResponse->json()[0]];
-                            $infolist->state($state);
-                        } 
+                            if ($stateResponse->ok()) {                            
+                                $state = ['state' => $stateResponse->json()[0]];
+                                $infolist->state($state);
+                            } 
+
+                            if (! $stateResponse->ok()) {   
+                                Notification::make()
+                                    ->warning()
+                                    ->title('Oops, Something went wrong!')  
+                                    ->body('The state history could not be retrieved.')   
+                                    ->send();
+                                                        
+                                return null;
+                            }
 
                         return [
                             Group::make([
-                                TextEntry::make('age')->state(null),
-                                TextEntry::make('client')->state(null)->alignCenter(),
+                                TextEntry::make('age')->state(null),                                
                                 TextEntry::make('created_at')->state(null)->columnSpan(2)->alignCenter(),
-                                TextEntry::make('message')->state(null)->columnSpan(6),
+                                TextEntry::make('message')->state(null)->columnSpan(7),
                                 TextEntry::make('status')->state(null)->columnSpan(2)
                             ])->columns(12),
                             RepeatableEntry::make('state')
                                 ->hiddenLabel()
                                 ->columns(12)
                                 ->schema([
-                                    TextEntry::make('age')->hiddenLabel(),
-                                    TextEntry::make('clientVersion')->hiddenLabel(),
+                                    TextEntry::make('age')
+                                        ->hiddenLabel()
+                                        ->suffix('ms'),                                    
                                     TextEntry::make('createTimestamp')
                                         ->hiddenLabel()
-                                        ->formatStateUsing(fn ($state) => Carbon::parse($state)->format('d M Y H:i:s'))
+                                        ->formatStateUsing(fn ($state): string => Carbon::parse($state)->format('d M Y H:i:s'))
                                         ->columnSpan(2),
-                                    TextEntry::make('message')->hiddenLabel()->columnSpan(6),
-                                    TextEntry::make('state')->hiddenLabel()->columnSpan(2)->badge()
+                                    TextEntry::make('message')
+                                        ->hiddenLabel()
+                                        ->columnSpan(7)
+                                        ->placeholder('-'),
+                                    TextEntry::make('state')
+                                        ->formatStateUsing(fn (string $state): PrintJobState => PrintJobState::tryFrom($state))
+                                        ->hiddenLabel()
+                                        ->columnSpan(2)
+                                        ->badge()
+                                        ->color(fn (string $state): string => PrintJobState::tryFrom($state)->getColor())
+                                        
                                 ])                                
                             ];
                     }),
