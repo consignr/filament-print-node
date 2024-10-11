@@ -38,16 +38,16 @@ class PrintJobsRelationManager extends RelationManager
             ->headerActions([
                 Tables\Actions\Action::make('cancel_all_printer_print_job_set')
                     ->action(function (Tables\Actions\Action $action) {                          
-                        $cancelRequest = Http::withBasicAuth(env('PRINTNODE_API_KEY'), env('PRINTNODE_PASSWORD'))
+                        $cancelResponse = Http::withBasicAuth(env('PRINTNODE_API_KEY'), env('PRINTNODE_PASSWORD'))
                             ->delete("https://api.printnode.com/printers/{$this->ownerRecord->id}/printjobs");
                         
-                        session([$action->getName() => count($cancelRequest->json())]);    
+                        session([$action->getName() => count($cancelResponse->json())]);    
                             
-                        if ($cancelRequest->ok() && filled($cancelRequest->json())) {
+                        if ($cancelResponse->ok() && filled($cancelResponse->json())) {
                             $action->success();
                         }
 
-                        if ($cancelRequest->ok() && empty($cancelRequest->json())) {
+                        if ($cancelResponse->ok() && empty($cancelResponse->json())) {
                             $action->failure();
                         }
                     })
@@ -56,17 +56,17 @@ class PrintJobsRelationManager extends RelationManager
                     ->modalDescription('Are you sure you\'d like to cancel all print jobs for this printer?')
                     ->modalSubmitActionLabel('Proceed')
                     ->icon('heroicon-s-x-circle')
-                    ->button()
+                    ->link()
                     ->color('danger')
                     ->failureNotification(
                         Notification::make()
                             ->warning()
-                            ->title('0 Print Jobs Cancelled')
+                            ->title('0 Print jobs cancelled')
                             ->body('Print jobs which have been completed or have been delivered to the PrintNode Client cannot be cancelled.')
                     )
                     ->successNotificationTitle(function (Tables\Actions\Action $action) {
                         $count = session($action->getName());
-                        return $count.' Print Jobs Cancelled';                                               
+                        return $count.' Print jobs cancelled';                                               
                     }),
             ]);
     }
