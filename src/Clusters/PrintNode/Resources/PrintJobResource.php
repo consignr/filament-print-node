@@ -147,22 +147,32 @@ class PrintJobResource extends Resource
                 Tables\Actions\Action::make('cancel_print_job_set')
                     ->action(function (PrintJob $record, Tables\Actions\Action $action) {
                         
-                        $cancelRequest = Http::withBasicAuth(env('PRINTNODE_API_KEY'), env('PRINTNODE_PASSWORD'))
-                            ->delete('https://api.printnode.com/printjobs'[$record->id]);
-
-                        if ($cancelRequest->ok() && filled($cancelRequest->json())) {
+                        $cancelResponse = Http::withBasicAuth(env('PRINTNODE_API_KEY'), env('PRINTNODE_PASSWORD'))
+                            ->delete("https://api.printnode.com/printjobs/{$record->id}");
+                       
+                        if ($cancelResponse->ok() && filled($cancelResponse->json())) {
                             $action->success();
+                        }
+
+                        if ($cancelResponse->ok() && empty($cancelResponse->json())) {
+                            $action->failure();
                         }
                     })
                     ->disabled(fn (PrintJob $record): bool => $record->state === PrintJobState::Done)
                     ->requiresConfirmation()
                     ->label('Cancel print job')
                     ->modalDescription('Are you sure you\'d like to cancel this print job?')
-                    ->modalSubmitActionLabel('cancel')
+                    ->modalSubmitActionLabel('Proceed')
                     ->icon('heroicon-s-x-circle')
                     ->iconButton()
                     ->color('danger')
-                    ->successNotificationTitle('Print Job Cancelled')
+                    ->successNotificationTitle('Print job cancelled')
+                    ->failureNotification(
+                        Notification::make()
+                            ->warning()
+                            ->title('Print job could not be cancelled')
+                            ->body('Print jobs which have been completed or have been delivered to the PrintNode Client cannot be cancelled.')
+                    )
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
