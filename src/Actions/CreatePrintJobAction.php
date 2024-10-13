@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 use Filament\Tables\Actions\Action;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Database\Eloquent\Model;
+use Filament\Notifications\Notification;
 use Filament\Support\Facades\FilamentIcon;
 use Consignr\FilamentPrintNode\Enums\ContentType;
 use Filament\Actions\Concerns\CanCustomizeProcess;
@@ -130,24 +131,30 @@ class CreatePrintJobAction extends Action
 
         $this->iconButton();
 
-        $this->action(function (): void {
-            $result = $this->process(static function (Model $record) {
-                
-                return Http::withBasicAuth(env('PRINTNODE_API_KEY'), env('PRINTNODE_PASSWORD'))
-                    ->post('https://api.printnode.com/printjobs', [
-                        'printerId' => static::getPrinterId(),
-                        'contentType' => static::getContentType(),
-                        'content' => static::getContent(),
-                        'title' => static::getTitle() ?: Str::uuid(),
-                        'source' => static::getSource() ?: 'not defined',
-                        'options' => null,
-                        'expirAfter' => static::getExpireAfter(),
-                        'qty' => static::getQuantity(),                        
-                    ]);
-            });
+        $this->successNotificationTitle('Print job request has been sent successfully.');
 
-            if (! $result->ok()) {
-                $this->failure();
+        $this->action(function (): void {            
+                
+            $response = Http::withBasicAuth(env('PRINTNODE_API_KEY'), env('PRINTNODE_PASSWORD'))
+                ->post('https://api.printnode.com/printjobs', [
+                    'printerId' => $this->getPrinterId(),
+                    'contentType' => $this->getContentType(),
+                    'content' => $this->getContent(),
+                    'title' => $this->getTitle() ?: Str::uuid(),
+                    'source' => $this->getSource() ?: 'not defined',
+                    'options' => null,
+                    'expirAfter' => $this->getExpireAfter(),
+                    'qty' => $this->getQuantity(),                        
+                ]);
+            
+            if (! $response->created()) {
+                
+                Notification::make()
+                    ->danger()
+                    ->title($response->json()['code'])
+                    ->body($response->json()['message'])
+                    ->persistent()
+                    ->send();
 
                 return;
             }
