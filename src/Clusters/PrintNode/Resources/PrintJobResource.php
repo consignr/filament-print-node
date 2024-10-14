@@ -54,7 +54,8 @@ class PrintJobResource extends Resource
                     ->sortable(),
                 TextColumn::make('contentType')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('source'),
                 TextColumn::make('state')
                     ->color(fn (PrintJobState $state): string => $state->getColor())
