@@ -18,7 +18,8 @@ class ViewComputer extends ViewRecord
 
     public function getSubheading(): string|Htmlable|null
     {
-       return 'View Computer'; 
+        $label = ComputerResource::getLabel();
+       return "View {$label}"; 
     }
 
     public function hasCombinedRelationManagerTabsWithContent(): bool

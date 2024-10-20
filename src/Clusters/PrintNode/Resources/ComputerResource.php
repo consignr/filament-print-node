@@ -21,6 +21,7 @@ use Consignr\FilamentPrintNode\Models\Computer;
 use Consignr\FilamentPrintNode\Clusters\PrintNode;
 use Consignr\FilamentPrintNode\Enums\ComputerState;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Consignr\FilamentPrintNode\FilamentPrintNodePlugin;
 use Consignr\FilamentPrintNode\Clusters\PrintNode\Resources\ComputerResource\Pages;
 use Consignr\FilamentPrintNode\Clusters\PrintNode\Resources\ComputerResource\RelationManagers;
 
@@ -28,9 +29,37 @@ class ComputerResource extends Resource
 {
     protected static ?string $model = Computer::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-computer-desktop';
-
     protected static ?string $cluster = PrintNode::class;
+
+    public static function getLabel(): string
+    {
+        return FilamentPrintNodePlugin::get()->getComputerLabel();
+    }
+
+    public static function getPluralLabel(): string
+    {
+        return FilamentPrintNodePlugin::get()->getComputerPluralLabel();
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return FilamentPrintNodePlugin::get()->getComputerNavigationLabel();
+    }
+
+    public static function getNavigationIcon(): string
+    {
+        return FilamentPrintNodePlugin::get()->getComputerNavigationIcon();
+    }
+
+    public static function getNavigationSort(): int
+    {
+        return FilamentPrintNodePlugin::get()->getComputerNavigationSort();
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return FilamentPrintNodePlugin::get()->getComputerNavigationBadgeCount();
+    }
 
     public static function form(Form $form): Form
     {

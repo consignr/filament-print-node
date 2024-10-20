@@ -22,6 +22,7 @@ use Consignr\FilamentPrintNode\Clusters\PrintNode;
 use Filament\Infolists\Components\RepeatableEntry;
 use Consignr\FilamentPrintNode\Enums\PrintJobState;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Consignr\FilamentPrintNode\FilamentPrintNodePlugin;
 use Consignr\FilamentPrintNode\Clusters\PrintNode\Resources\PrintJobResource\Pages;
 use Consignr\FilamentPrintNode\Clusters\PrintNode\Resources\PrintJobResource\RelationManagers;
 
@@ -29,9 +30,37 @@ class PrintJobResource extends Resource
 {
     protected static ?string $model = PrintJob::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-queue-list';
-
     protected static ?string $cluster = PrintNode::class;
+
+    public static function getLabel(): string
+    {
+        return FilamentPrintNodePlugin::get()->getPrintJobLabel();
+    }
+
+    public static function getPluralLabel(): string
+    {
+        return FilamentPrintNodePlugin::get()->getPrintJobPluralLabel();
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return FilamentPrintNodePlugin::get()->getPrintJobNavigationLabel();
+    }
+
+    public static function getNavigationIcon(): string
+    {
+        return FilamentPrintNodePlugin::get()->getPrintJobNavigationIcon();
+    }
+
+    public static function getNavigationSort(): int
+    {
+        return FilamentPrintNodePlugin::get()->getPrintJobNavigationSort();
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return FilamentPrintNodePlugin::get()->getPrintJobNavigationBadgeCount();
+    }    
 
     public static function form(Form $form): Form
     {

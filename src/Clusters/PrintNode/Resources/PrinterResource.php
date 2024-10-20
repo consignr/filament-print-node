@@ -25,6 +25,7 @@ use Filament\Infolists\Components\TextEntry;
 use Consignr\FilamentPrintNode\Models\Printer;
 use Consignr\FilamentPrintNode\Clusters\PrintNode;
 use Consignr\FilamentPrintNode\Enums\PrinterState;
+use Consignr\FilamentPrintNode\FilamentPrintNodePlugin;
 use Filament\Resources\RelationManagers\RelationManager;
 use Consignr\FilamentPrintNode\Clusters\PrintNode\Resources\PrinterResource\Pages;
 use Consignr\FilamentPrintNode\Clusters\PrintNode\Resources\PrinterResource\RelationManagers;
@@ -33,9 +34,37 @@ class PrinterResource extends Resource
 {
     protected static ?string $model = Printer::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-printer';
-
     protected static ?string $cluster = PrintNode::class;
+
+    public static function getLabel(): string
+    {
+        return FilamentPrintNodePlugin::get()->getPrintersLabel();
+    }
+
+    public static function getPluralLabel(): string
+    {
+        return FilamentPrintNodePlugin::get()->getPrintersPluralLabel();
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return FilamentPrintNodePlugin::get()->getPrintersNavigationLabel();
+    }
+
+    public static function getNavigationIcon(): string
+    {
+        return FilamentPrintNodePlugin::get()->getPrintersNavigationIcon();
+    }
+
+    public static function getNavigationSort(): int
+    {
+        return FilamentPrintNodePlugin::get()->getPrintersNavigationSort();
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return FilamentPrintNodePlugin::get()->getPrintersNavigationBadgeCount();
+    }
 
     public static function form(Form $form): Form
     {

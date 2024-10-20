@@ -15,12 +15,18 @@ use Consignr\FilamentPrintNode\Models\PrintJob;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Resources\RelationManagers\RelationManager;
 use Consignr\FilamentPrintNode\Clusters\PrintNode\Resources\PrintJobResource;
+use Consignr\FilamentPrintNode\FilamentPrintNodePlugin;
 
 class PrintJobsRelationManager extends RelationManager
 {
     protected static string $relationship = 'printJobs';
 
     protected static ?string $badgeColor = 'info';
+
+    public static function getTitle(Model $ownerRecord, string $pageClass): string
+    {
+        return FilamentPrintNodePlugin::get()->getPrintJobPluralLabel();
+    }
  
     public static function getBadge(Model $ownerRecord, string $pageClass): ?string
     {
