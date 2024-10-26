@@ -67,6 +67,8 @@ Add the the custom table action to your desired resource
 ```php
 use Consignr\FilamentPrintNode\Actions\CreatePrintJobAction;
 use Consignr\FilamentPrintNode\Enums\ContentType;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 public static function table(Table $table): Table
     {
@@ -81,14 +83,18 @@ public static function table(Table $table): Table
                 CreatePrintJobAction::make()
                     ->printerId(1234567) // Provide the ID for the printer
                     ->contentType(ContentType::PdfBase64) // Provide the content type PdfUri | PdfBase64 | RawUri | RawBase64
-                    ->content(function (Model $record): string {
+                    ->content(function (Model $record, CreatePrintJobAction $action): string {                            
+                        if (! Storage::disk('public')->exists($record->path)) {
+                            Notification::make()
+                                ->warning()
+                                ->title('File Not Found')
+                                ->body('The target file does not exist.')
+                                ->send();
 
-                        if (Storage::disk('public')->exists($record->path)) {
-                            return base64_encode(Storage::disk('public')->get($record->path))
+                            $action->halt();
                         }
 
-                        return;
-                        
+                        return base64_encode(Storage::disk('public')->get($record->path));
                     }) // Uri where the document can be downloaded or base64 encoded document
                     ->title() // Provide a title to be given to the print job. This is the name which will appear in the operating system's print queue.
                     ->source() // Provide a text description of how the print job was created or where the print job originated.
