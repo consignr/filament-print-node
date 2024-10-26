@@ -3,6 +3,16 @@
 
 ## Usage
 The plugin integrates [PrintNode](https://www.printnode.com/en) functionality in your filament panel(s), allowing admins to quickly access Computer, Printer and PrintJob resources. It provides custom actions to send print requests to the [PrintNode](https://www.printnode.com/en/docs/api/curl) api.
+
+<!-- docs_start -->
+
+## Installation
+
+You can install the package via composer then run the installation command:
+
+```bash
+composer require consignr/filament-print-node
+```
  
 ### Registering the plugin
 
