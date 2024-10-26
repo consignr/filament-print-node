@@ -13,12 +13,8 @@ class FilamentPrintNodeProvider extends PackageServiceProvider
 
     public function configurePackage(Package $package): void
     {
-        $package->name(static::$name)
-            ->hasInstallCommand(function (InstallCommand $command) {
-                $command
-                    ->publishConfigFile()
-                    ->askToStarRepoOnGitHub('consignr/filament-print-node');
-            });
+        $package->name(static::$name);
+            
 
         if (file_exists($package->basePath('/../config/'.static::$name.'.php'))) {
             $package->hasConfigFile();
