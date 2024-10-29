@@ -6,6 +6,8 @@ use Sushi\Sushi;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Database\Eloquent\Model;
+use Consignr\FilamentPrintNode\Api\PrintNode;
+use Consignr\FilamentPrintNode\Api\Requests\PrintJobs;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Consignr\FilamentPrintNode\Enums\PrintJobState;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -69,36 +71,40 @@ class PrintJob extends Model
      */
     public function getRows()
     {
-        //API
-        $jobs = Http::withBasicAuth(env('PRINTNODE_API_KEY'), env('PRINTNODE_PASSWORD'))
-                    ->get('https://api.printnode.com/printjobs')->json();
+        $printNode = new PrintNode(env('PRINTNODE_API_KEY'));
+
+        $response = $printNode->send(new PrintJobs\GetPrintJobs); 
+
+        if ($response->ok()) {
        
-        //filtering some attributes
-        $jobs = Arr::map($jobs, function ($item) {
-            $printer = Arr::pull($item, 'printer');
-            $computer = Arr::pull($printer, 'computer');
+            //filtering some attributes
+            $jobs = $response->collect()->map(function ($item) {
+                $printer = Arr::pull($item, 'printer');
+                $computer = Arr::pull($printer, 'computer');
 
-            $item['printer'] = json_encode($printer);
-            $item['printer_id'] = $printer['id'];
-            $item['computer'] = json_encode($computer);
-            
-            return Arr::only($item,
-                [
-                    'id',
-                    'title',
-                    'contentType',
-                    'source',
-                    'expireAt',
-                    'createTimestamp',
-                    'state',
-                    'printer',
-                    'printer_id',
-                    'computer'
-                ]
-            );
-        });
+                $item['printer'] = json_encode($printer);
+                $item['printer_id'] = $printer['id'];
+                $item['computer'] = json_encode($computer);
+                
+                return Arr::only($item,
+                    [
+                        'id',
+                        'title',
+                        'contentType',
+                        'source',
+                        'expireAt',
+                        'createTimestamp',
+                        'state',
+                        'printer',
+                        'printer_id',
+                        'computer'
+                    ]
+                );
+            })
+            ->toArray();
 
-        return $jobs;
+            return $jobs;
+        }
     }
 
     public function printer(): BelongsTo

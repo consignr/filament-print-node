@@ -22,11 +22,13 @@ use Filament\Infolists\Components\Fieldset;
 use Filament\Infolists\Components\Tabs\Tab;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\TextEntry;
+use Consignr\FilamentPrintNode\Api\PrintNode;
 use Consignr\FilamentPrintNode\Models\Printer;
-use Consignr\FilamentPrintNode\Clusters\PrintNode;
 use Consignr\FilamentPrintNode\Enums\PrinterState;
+use Consignr\FilamentPrintNode\Api\Requests\PrintJobs;
 use Consignr\FilamentPrintNode\FilamentPrintNodePlugin;
 use Filament\Resources\RelationManagers\RelationManager;
+use Consignr\FilamentPrintNode\Clusters\PrintNode as PrintNodeCluster;
 use Consignr\FilamentPrintNode\Clusters\PrintNode\Resources\PrinterResource\Pages;
 use Consignr\FilamentPrintNode\Clusters\PrintNode\Resources\PrinterResource\RelationManagers;
 
@@ -34,7 +36,7 @@ class PrinterResource extends Resource
 {
     protected static ?string $model = Printer::class;
 
-    protected static ?string $cluster = PrintNode::class;
+    protected static ?string $cluster = PrintNodeCluster::class;
 
     public static function getLabel(): string
     {
@@ -212,10 +214,11 @@ class PrinterResource extends Resource
                 Tables\Actions\Action::make('cancel_printer_print_job_set')
                     ->action(function (Printer $record, Tables\Actions\Action $action) {
 
-                        $cancelResponse = Http::withBasicAuth(env('PRINTNODE_API_KEY'), env('PRINTNODE_PASSWORD'))
-                            ->delete("https://api.printnode.com/printers/{$record->id}/printjobs");
+                        $printNode = new PrintNode(env('PRINTNODE_API_KEY'));
 
-                        if ($cancelResponse->ok()) {
+                        $response = $printNode->send(new PrintJobs\DeletePrintJobsOfPrintersSet(printerSet: [$record->id]));
+
+                        if ($response->ok()) {
                             $action->success();
                         }
                     })

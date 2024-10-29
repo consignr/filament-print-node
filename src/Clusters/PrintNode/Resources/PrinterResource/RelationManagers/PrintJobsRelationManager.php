@@ -11,11 +11,13 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
+use Consignr\FilamentPrintNode\Api\PrintNode;
 use Consignr\FilamentPrintNode\Models\PrintJob;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Consignr\FilamentPrintNode\FilamentPrintNodePlugin;
 use Filament\Resources\RelationManagers\RelationManager;
 use Consignr\FilamentPrintNode\Clusters\PrintNode\Resources\PrintJobResource;
-use Consignr\FilamentPrintNode\FilamentPrintNodePlugin;
+use Consignr\FilamentPrintNode\Api\Requests\PrintJobs;
 
 class PrintJobsRelationManager extends RelationManager
 {
@@ -42,18 +44,19 @@ class PrintJobsRelationManager extends RelationManager
     {
         return PrintJobResource::table($table)
             ->headerActions([
-                Tables\Actions\Action::make('cancel_all_printer_print_job_set')
+                Tables\Actions\Action::make('cancel_all_print_jobs_for_printer_set')
                     ->action(function (Tables\Actions\Action $action) {                          
-                        $cancelResponse = Http::withBasicAuth(env('PRINTNODE_API_KEY'), env('PRINTNODE_PASSWORD'))
-                            ->delete("https://api.printnode.com/printers/{$this->ownerRecord->id}/printjobs");
+                        $printNode = new PrintNode(env('PRINTNODE_API_KEY'));
+
+                        $response = $printNode->send(new PrintJobs\DeletePrintJobsOfPrintersSet(printerSet: [$this->ownerRecord->getKey()]));
                         
-                        session([$action->getName() => count($cancelResponse->json())]);    
+                        session([$action->getName() => count($response->json())]);    
                             
-                        if ($cancelResponse->ok() && filled($cancelResponse->json())) {
+                        if ($response->ok() && filled($response->json())) {
                             $action->success();
                         }
 
-                        if ($cancelResponse->ok() && empty($cancelResponse->json())) {
+                        if ($response->ok() && empty($response->json())) {
                             $action->failure();
                         }
                     })

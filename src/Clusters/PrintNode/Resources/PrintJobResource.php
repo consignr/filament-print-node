@@ -17,12 +17,15 @@ use Filament\Infolists\Components\Group;
 use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Infolists\Components\TextEntry;
+use Consignr\FilamentPrintNode\Api\PrintNode;
 use Consignr\FilamentPrintNode\Models\PrintJob;
-use Consignr\FilamentPrintNode\Clusters\PrintNode;
 use Filament\Infolists\Components\RepeatableEntry;
 use Consignr\FilamentPrintNode\Enums\PrintJobState;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Consignr\FilamentPrintNode\FilamentPrintNodePlugin;
+use Consignr\FilamentPrintNode\Clusters\PrintNode as PrintNodeCluster;
+use Consignr\FilamentPrintNode\Api\Requests\PrintJobs\DeletePrintJobsSet;
+use Consignr\FilamentPrintNode\Api\Requests\PrintJobs\GetPrintJobsStates;
 use Consignr\FilamentPrintNode\Clusters\PrintNode\Resources\PrintJobResource\Pages;
 use Consignr\FilamentPrintNode\Clusters\PrintNode\Resources\PrintJobResource\RelationManagers;
 
@@ -30,7 +33,7 @@ class PrintJobResource extends Resource
 {
     protected static ?string $model = PrintJob::class;
 
-    protected static ?string $cluster = PrintNode::class;
+    protected static ?string $cluster = PrintNodeCluster::class;
 
     public static function getLabel(): string
     {
@@ -124,15 +127,16 @@ class PrintJobResource extends Resource
                     ->modalCancelAction(false)                        
                     ->infolist(function (PrintJob $record, $infolist) {
 
-                            $stateResponse = Http::withBasicAuth(env('PRINTNODE_API_KEY'), env('PRINTNODE_PASSWORD'))
-                                ->get("https://api.printnode.com/printjobs/{$record->id}/states");
+                        $printNode = new PrintNode(env('PRINTNODE_API_KEY'));
 
-                            if ($stateResponse->ok()) {                            
-                                $state = ['state' => $stateResponse->json()[0]];
+                        $response = $printNode->send(new GetPrintJobsStates(printJobSet: [$record->id]));
+
+                            if ($response->ok()) {                            
+                                $state = ['state' => $response->json()[0]];
                                 $infolist->state($state);
                             } 
 
-                            if (! $stateResponse->ok()) {   
+                            if (! $response->ok()) {   
                                 Notification::make()
                                     ->warning()
                                     ->title('Oops, Something went wrong!')  
@@ -176,15 +180,16 @@ class PrintJobResource extends Resource
                     }),
                 Tables\Actions\Action::make('cancel_print_job_set')
                     ->action(function (PrintJob $record, Tables\Actions\Action $action) {
-                        
-                        $cancelResponse = Http::withBasicAuth(env('PRINTNODE_API_KEY'), env('PRINTNODE_PASSWORD'))
-                            ->delete("https://api.printnode.com/printjobs/{$record->id}");
+
+                        $printNode = new PrintNode(env('PRINTNODE_API_KEY'));
+
+                        $response = $printNode->send(new DeletePrintJobsSet(printJobSet: [$record->id]));
                        
-                        if ($cancelResponse->ok() && filled($cancelResponse->json())) {
+                        if ($response->ok() && filled($response->json())) {
                             $action->success();
                         }
 
-                        if ($cancelResponse->ok() && empty($cancelResponse->json())) {
+                        if ($response->ok() && empty($response->json())) {
                             $action->failure();
                         }
                     })

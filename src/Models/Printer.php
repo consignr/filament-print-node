@@ -4,12 +4,13 @@ namespace Consignr\FilamentPrintNode\Models;
 
 use Sushi\Sushi;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Database\Eloquent\Model;
+use Consignr\FilamentPrintNode\Api\PrintNode;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Consignr\FilamentPrintNode\Enums\PrinterState;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Consignr\FilamentPrintNode\Api\Requests\Printers;
 
 class Printer extends Model
 {
@@ -193,34 +194,37 @@ class Printer extends Model
      */
     public function getRows()
     {
-        //API
-        $printers = Http::withBasicAuth(env('PRINTNODE_API_KEY'), env('PRINTNODE_PASSWORD'))
-                         ->get('https://api.printnode.com/printers')->json();
-       
-        //filtering some attributes
-        $printers = collect($printers)->map(function ($item) {
-            $computer = Arr::pull($item, 'computer');
-            $item['computer_id'] = $computer['id'];
-            return collect($item)->map(function ($i, $k) {
-                
-                if ($k === 'capabilities') {
-                   return json_encode($i);
-                }
+        $printNode = new PrintNode(env('PRINTNODE_API_KEY'));
 
-                return $i;
-            })->only([
-                "id",
-                "name",
-                "description",
-                "default",
-                "createTimestamp",
-                "state",
-                "capabilities",
-                'computer_id'
-            ]);
-        })->toArray();
+        $response = $printNode->send(new Printers\GetPrinters); 
 
-        return $printers;
+        if ($response->ok()) {
+                    
+            //filtering some attributes
+            $printers = $response->collect()->map(function ($item) {
+                $computer = Arr::pull($item, 'computer');
+                $item['computer_id'] = $computer['id'];
+                return collect($item)->map(function ($i, $k) {
+                    
+                    if ($k === 'capabilities') {
+                    return json_encode($i);
+                    }
+
+                    return $i;
+                })->only([
+                    "id",
+                    "name",
+                    "description",
+                    "default",
+                    "createTimestamp",
+                    "state",
+                    "capabilities",
+                    'computer_id'
+                ]);
+            })->toArray();
+
+            return $printers;
+        }
     }
 
     public function printJobs(): HasMany
