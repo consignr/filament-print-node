@@ -3,11 +3,11 @@
 namespace Consignr\FilamentPrintNode\Models;
 
 use Sushi\Sushi;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Database\Eloquent\Model;
+use Consignr\FilamentPrintNode\Api\PrintNode;
 use Consignr\FilamentPrintNode\Enums\ComputerState;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Consignr\FilamentPrintNode\Api\Requests\Computers;
 
 class Computer extends Model
 {
@@ -25,28 +25,15 @@ class Computer extends Model
      */
     public function getRows()
     {
-        //API
-        $computers = Http::withBasicAuth(env('PRINTNODE_API_KEY'), env('PRINTNODE_PASSWORD'))
-                         ->get('https://api.printnode.com/computers')->json();
+        $printNode = new PrintNode(env('PRINTNODE_API_KEY'));
 
-        //filtering some attributes
-        $computers = Arr::map($computers, function ($item) {
-            return Arr::only($item,
-                [
-                    "id",
-                    "name",
-                    "inet",
-                    "inet6",
-                    "hostname",
-                    "version",
-                    "jre",
-                    "createTimestamp",
-                    "state"
-                ]
-            );
-        });
- 
-        return $computers;
+        $response = $printNode->send(new Computers\GetComputers);
+
+        if ($response->ok()) {
+            return $response->json();
+        }
+
+        return [];        
     }
 
     public function printers(): HasMany

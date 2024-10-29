@@ -9,8 +9,10 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Notifications\Notification;
 use Filament\Support\Facades\FilamentIcon;
+use Consignr\FilamentPrintNode\Api\PrintNode;
 use Consignr\FilamentPrintNode\Enums\ContentType;
 use Filament\Actions\Concerns\CanCustomizeProcess;
+use Consignr\FilamentPrintNode\Api\Requests\PrintJobs;
 
 class CreatePrintJobAction extends Action
 {
@@ -133,20 +135,25 @@ class CreatePrintJobAction extends Action
 
         $this->successNotificationTitle('Print job request has been sent successfully.');
 
-        $this->action(function (): void {            
-                
-            $response = Http::withBasicAuth(env('PRINTNODE_API_KEY'), env('PRINTNODE_PASSWORD'))
-                ->post('https://api.printnode.com/printjobs', [
-                    'printerId' => $this->getPrinterId(),
-                    'contentType' => $this->getContentType(),
-                    'content' => $this->getContent(),
-                    'title' => $this->getTitle() ?: Str::uuid(),
-                    'source' => $this->getSource() ?: 'not defined',
-                    'options' => null,
-                    'expirAfter' => $this->getExpireAfter(),
-                    'qty' => $this->getQuantity(),                        
-                ]);
+        $this->action(function (): void {   
             
+            $printNode = new PrintNode(env('PRINTNODE_API_KEY'));
+
+            $request = new PrintJobs\PostPrintJob;
+
+            $request->body()->merge([
+                'printerId' => $this->getPrinterId(),
+                'contentType' => $this->getContentType(),
+                'content' => $this->getContent(),
+                'title' => $this->getTitle() ?: Str::uuid(),
+                'source' => $this->getSource() ?: '-',
+                'options' => null,
+                'expirAfter' => $this->getExpireAfter(),
+                'qty' => $this->getQuantity(), 
+            ]);
+
+            $response = $printNode->send($request);
+                            
             if (! $response->created()) {
                 
                 Notification::make()

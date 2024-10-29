@@ -3,6 +3,8 @@
 namespace Consignr\FilamentPrintNode\Clusters\PrintNode\Resources;
 
 use Carbon\Carbon;
+use Consignr\FilamentPrintNode\Api\PrintNode;
+use Consignr\FilamentPrintNode\Api\Requests\Computers;
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
@@ -18,7 +20,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
 use Consignr\FilamentPrintNode\Models\Computer;
-use Consignr\FilamentPrintNode\Clusters\PrintNode;
+use Consignr\FilamentPrintNode\Clusters\PrintNode as PrintNodeCluster;
 use Consignr\FilamentPrintNode\Enums\ComputerState;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Consignr\FilamentPrintNode\FilamentPrintNodePlugin;
@@ -29,7 +31,7 @@ class ComputerResource extends Resource
 {
     protected static ?string $model = Computer::class;
 
-    protected static ?string $cluster = PrintNode::class;
+    protected static ?string $cluster = PrintNodeCluster::class;
 
     public static function getLabel(): string
     {
@@ -151,11 +153,12 @@ class ComputerResource extends Resource
                 Tables\Actions\ViewAction::make()->hiddenLabel(),
                 Tables\Actions\Action::make('delete_computer_set')
                     ->action(function ($record, $livewire) {
-                        
-                        $deleteRequest = Http::withBasicAuth(env('PRINTNODE_API_KEY'), env('PRINTNODE_PASSWORD'))
-                            ->delete('https://api.printnode.com/computers'[$record->id]);
 
-                        if ($deleteRequest->successful()) {
+                        $printNode = new PrintNode(env('PRINTNODE_API_KEY'));
+
+                        $response = $printNode->send(new Computers\DeleteComputersSet(set: [$record->id]));
+
+                        if ($response->successful()) {
                             $livewire->success();
                         }
                     })
