@@ -3,27 +3,20 @@
 namespace Consignr\FilamentPrintNode\Clusters\PrintNode\Resources;
 
 use Carbon\Carbon;
-use Consignr\FilamentPrintNode\Api\PrintNode;
-use Consignr\FilamentPrintNode\Api\Requests\Computers;
-use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
-use Filament\Support\Enums\IconSize;
-use Illuminate\Support\Facades\Http;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Infolists\Components\Group;
-use Filament\Notifications\Notification;
-use Illuminate\Database\Eloquent\Builder;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
 use Consignr\FilamentPrintNode\Models\Computer;
-use Consignr\FilamentPrintNode\Clusters\PrintNode as PrintNodeCluster;
 use Consignr\FilamentPrintNode\Enums\ComputerState;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Consignr\FilamentPrintNode\FilamentPrintNodePlugin;
+use Consignr\FilamentPrintNode\Actions as PrintNodeActions;
+use Consignr\FilamentPrintNode\Clusters\PrintNode as PrintNodeCluster;
 use Consignr\FilamentPrintNode\Clusters\PrintNode\Resources\ComputerResource\Pages;
 use Consignr\FilamentPrintNode\Clusters\PrintNode\Resources\ComputerResource\RelationManagers;
 
@@ -143,33 +136,14 @@ class ComputerResource extends Resource
                 TextColumn::make('createTimestamp')
                     ->dateTime()
                         ->sortable()
-                    ->label('Created at'),
-                
+                    ->label('Created at'),                
             ])
             ->filters([
                 //
             ])
             ->actions([
                 Tables\Actions\ViewAction::make()->hiddenLabel(),
-                Tables\Actions\Action::make('delete_computer_set')
-                    ->action(function ($record, $livewire) {
-
-                        $printNode = new PrintNode(env('PRINTNODE_API_KEY'));
-
-                        $response = $printNode->send(new Computers\DeleteComputersSet(set: [$record->id]));
-
-                        if ($response->successful()) {
-                            $livewire->success();
-                        }
-                    })
-                    ->requiresConfirmation()
-                    ->label('Delete computer')
-                    ->modalDescription('Are you sure you\'d like to delete this computer from PrintNode?')
-                    ->modalSubmitActionLabel('Delete')
-                    ->icon('heroicon-m-trash')
-                    ->iconButton()
-                    ->color('danger')
-                    ->successNotificationTitle('Computer Deleted')
+                PrintNodeActions\DeleteComputerAction::make()
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
