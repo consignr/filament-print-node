@@ -9,29 +9,22 @@ use Illuminate\Support\Str;
 use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Radio;
-use Illuminate\Support\Facades\Http;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Fieldset;
-use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Forms\Components\Placeholder;
-use Filament\Support\Facades\FilamentIcon;
-use Filament\Forms\Components\ToggleButtons;
 use Consignr\FilamentPrintNode\Api\PrintNode;
 use Consignr\FilamentPrintNode\Models\Printer;
 use Consignr\FilamentPrintNode\Enums\ContentType;
 use Consignr\FilamentPrintNode\Enums\DuplexOption;
 use Consignr\FilamentPrintNode\Enums\RotateOption;
-use Filament\Actions\Concerns\CanCustomizeProcess;
 use Consignr\FilamentPrintNode\Api\Requests\PrintJobs;
 
 class CreatePrintJobAction extends Action
 {
-    use CanCustomizeProcess;
-
     protected int | Closure | null $printerId = null;
 
     protected ContentType | null $contentType = null;
