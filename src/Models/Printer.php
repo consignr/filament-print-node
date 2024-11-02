@@ -11,6 +11,7 @@ use Consignr\FilamentPrintNode\Enums\PrinterState;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Consignr\FilamentPrintNode\Api\Requests\Printers;
+use PhpParser\Node\Expr\BinaryOp\BooleanOr;
 
 class Printer extends Model
 {
@@ -21,6 +22,46 @@ class Printer extends Model
         'capabilities' => 'array',
         'createTimestamp' => 'datetime'
     ];
+
+    /**
+     * Get the has_bins attribute.
+     */
+    protected function hasBins(): Attribute
+    {
+        return Attribute::make(
+            get: fn (): bool => filled($this->capabilities['bins']),
+        );
+    }
+
+    /**
+     * Get the has_dpis attribute.
+     */
+    protected function hasDpis(): Attribute
+    {
+        return Attribute::make(
+            get: fn (): bool => filled($this->capabilities['dpis']),
+        );
+    }
+
+    /**
+     * Get the has_medias attribute.
+     */
+    protected function hasMedias(): Attribute
+    {
+        return Attribute::make(
+            get: fn (): bool => filled($this->capabilities['medias']),
+        );
+    }
+
+    /**
+     * Get the has_papers attribute.
+     */
+    protected function hasPapers(): Attribute
+    {
+        return Attribute::make(
+            get: fn (): bool => filled(Arr::whereNotNull($this->capabilities['papers'])),
+        );
+    }
 
     /**
      * Get the capabilities.
