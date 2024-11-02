@@ -23,6 +23,7 @@ use Filament\Infolists\Components\RepeatableEntry;
 use Consignr\FilamentPrintNode\Enums\PrintJobState;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Consignr\FilamentPrintNode\FilamentPrintNodePlugin;
+use Consignr\FilamentPrintNode\Actions as PrintNodeActions;
 use Consignr\FilamentPrintNode\Clusters\PrintNode as PrintNodeCluster;
 use Consignr\FilamentPrintNode\Api\Requests\PrintJobs\DeletePrintJobsSet;
 use Consignr\FilamentPrintNode\Api\Requests\PrintJobs\GetPrintJobsStates;
@@ -178,36 +179,7 @@ class PrintJobResource extends Resource
                                 ])                                
                             ];
                     }),
-                Tables\Actions\Action::make('cancel_print_job_set')
-                    ->action(function (PrintJob $record, Tables\Actions\Action $action) {
-
-                        $printNode = new PrintNode(env('PRINTNODE_API_KEY'));
-
-                        $response = $printNode->send(new DeletePrintJobsSet(printJobSet: [$record->id]));
-                       
-                        if ($response->ok() && filled($response->json())) {
-                            $action->success();
-                        }
-
-                        if ($response->ok() && empty($response->json())) {
-                            $action->failure();
-                        }
-                    })
-                    ->disabled(fn (PrintJob $record): bool => $record->state === PrintJobState::Done)
-                    ->requiresConfirmation()
-                    ->label('Cancel print job')
-                    ->modalDescription('Are you sure you\'d like to cancel this print job?')
-                    ->modalSubmitActionLabel('Proceed')
-                    ->icon('heroicon-s-x-circle')
-                    ->iconButton()
-                    ->color('danger')
-                    ->successNotificationTitle('Print job cancelled')
-                    ->failureNotification(
-                        Notification::make()
-                            ->warning()
-                            ->title('Print job could not be cancelled')
-                            ->body('Print jobs which have been completed or have been delivered to the PrintNode Client cannot be cancelled.')
-                    )
+                PrintNodeActions\CancelPrintJobAction::make()
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
