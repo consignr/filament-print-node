@@ -17,7 +17,8 @@ class FilamentPrintNodeProvider extends PackageServiceProvider
             
 
         if (file_exists($package->basePath('/../config/'.static::$name.'.php'))) {
-            $package->hasConfigFile();
+            $package->hasConfigFile()
+                ->hasViews();
         }
     }
 }

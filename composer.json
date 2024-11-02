@@ -16,5 +16,12 @@
         "saloonphp/laravel-plugin": "^3.5"
     },
     "minimum-stability": "dev",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Consignr\\FilamentPrintNode\\FilamentPrintNodeServiceProvider"
+            ]
+        }
+    }
 }

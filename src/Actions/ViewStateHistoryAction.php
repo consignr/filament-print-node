@@ -6,7 +6,6 @@ use Carbon\Carbon;
 use Consignr\FilamentPrintNode\Api;
 use Filament\Tables\Actions\Action;
 use Filament\Support\Enums\MaxWidth;
-use Filament\Infolists\Components\Group;
 use Filament\Notifications\Notification;
 use Filament\Infolists\Components\TextEntry;
 use Consignr\FilamentPrintNode\Models\PrintJob;
@@ -44,8 +43,20 @@ class ViewStateHistoryAction extends Action
 
             $response = $printNode->send(new Api\Requests\PrintJobs\GetPrintJobsStates(printJobSet: [$record->id]));
 
-            if ($response->ok()) {                            
-                $state = ['state' => $response->json()[0]];
+            if ($response->ok()) {   
+
+                $headings = [
+                    'age' => 'Age',
+                    'clientVersion' => 'Client Version',
+                    'createTimestamp' => 'Created At',
+                    'data' => 'Data',
+                    'message' => 'Message',
+                    'printJobId' => 'Print Job ID',
+                    'state' => 'State',
+                ];  
+
+                $state = ['state' => collect($response->collect()->first())->prepend($headings)->toArray()];
+                
                 $infolist->state($state);
             } 
 
@@ -60,33 +71,28 @@ class ViewStateHistoryAction extends Action
             }
 
             return [
-                Group::make([
-                    TextEntry::make('age')->state(null),                                
-                    TextEntry::make('created_at')->state(null)->columnSpan(2)->alignCenter(),
-                    TextEntry::make('message')->state(null)->columnSpan(7),
-                    TextEntry::make('status')->state(null)->columnSpan(2)
-                ])->columns(12),
                 RepeatableEntry::make('state')
+                    ->view('filament-print-node::state-history-repeatable-entry')
                     ->hiddenLabel()
                     ->columns(12)
                     ->schema([
                         TextEntry::make('age')
                             ->hiddenLabel()
-                            ->suffix('ms'),                                    
+                            ->suffix(fn (string $state): ?string => $state === 'Age' ? null : 'ms'),                                    
                         TextEntry::make('createTimestamp')
                             ->hiddenLabel()
-                            ->formatStateUsing(fn ($state): string => Carbon::parse($state)->format('d M Y H:i:s'))
+                            ->formatStateUsing(fn ($state): string => $state === 'Created At' ? $state : Carbon::parse($state)->format('d M Y H:i:s'))
                             ->columnSpan(2),
                         TextEntry::make('message')
                             ->hiddenLabel()
                             ->columnSpan(7)
                             ->placeholder('-'),
                         TextEntry::make('state')
-                            ->formatStateUsing(fn (string $state): PrintJobState => PrintJobState::tryFrom($state))
+                            ->formatStateUsing(fn (string $state): string => $state === 'State' ? $state : PrintJobState::tryFrom($state)->getLabel())
                             ->hiddenLabel()
                             ->columnSpan(2)
-                            ->badge()
-                            ->color(fn (string $state): string => PrintJobState::tryFrom($state)->getColor())
+                            ->badge(fn (string $state): bool => $state === 'State' ? false : true)
+                            ->color(fn (string $state): string => $state === 'State' ? $state : PrintJobState::tryFrom($state)->getColor())
                             
                     ])                                
                 ];
