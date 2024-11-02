@@ -142,7 +142,7 @@ class ComputerResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make()->hiddenLabel(),
+                Tables\Actions\ViewAction::make(),
                 PrintNodeActions\DeleteComputerAction::make()
             ])
             ->bulkActions([
