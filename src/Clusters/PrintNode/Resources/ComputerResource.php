@@ -142,12 +142,11 @@ class ComputerResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
                 PrintNodeActions\DeleteComputerAction::make()
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    // Tables\Actions\DeleteBulkAction::make(),
+                    //
                 ]),
             ]);
     }
