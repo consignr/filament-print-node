@@ -2,7 +2,6 @@
 
 namespace Consignr\FilamentPrintNode\Clusters\PrintNode\Resources;
 
-use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
@@ -10,24 +9,15 @@ use Illuminate\Support\Carbon;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Illuminate\Support\HtmlString;
-use Filament\Support\Enums\MaxWidth;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Blade;
-use Filament\Infolists\Components\Tabs;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Infolists\Components\Group;
-use Illuminate\Database\Eloquent\Builder;
 use Filament\Infolists\Components\Section;
-use Filament\Infolists\Components\Fieldset;
-use Filament\Infolists\Components\Tabs\Tab;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\TextEntry;
-use Consignr\FilamentPrintNode\Api\PrintNode;
 use Consignr\FilamentPrintNode\Models\Printer;
 use Consignr\FilamentPrintNode\Enums\PrinterState;
-use Consignr\FilamentPrintNode\Api\Requests\PrintJobs;
 use Consignr\FilamentPrintNode\FilamentPrintNodePlugin;
-use Filament\Resources\RelationManagers\RelationManager;
 use Consignr\FilamentPrintNode\Actions as PrintNodeActions;
 use Consignr\FilamentPrintNode\Clusters\PrintNode as PrintNodeCluster;
 use Consignr\FilamentPrintNode\Clusters\PrintNode\Resources\PrinterResource\Pages;
