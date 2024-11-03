@@ -28,6 +28,7 @@ use Consignr\FilamentPrintNode\Enums\PrinterState;
 use Consignr\FilamentPrintNode\Api\Requests\PrintJobs;
 use Consignr\FilamentPrintNode\FilamentPrintNodePlugin;
 use Filament\Resources\RelationManagers\RelationManager;
+use Consignr\FilamentPrintNode\Actions as PrintNodeActions;
 use Consignr\FilamentPrintNode\Clusters\PrintNode as PrintNodeCluster;
 use Consignr\FilamentPrintNode\Clusters\PrintNode\Resources\PrinterResource\Pages;
 use Consignr\FilamentPrintNode\Clusters\PrintNode\Resources\PrinterResource\RelationManagers;
@@ -140,26 +141,7 @@ class PrinterResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make()->iconButton(),
-                Tables\Actions\Action::make('cancel_printer_print_job_set')
-                    ->action(function (Printer $record, Tables\Actions\Action $action) {
-
-                        $printNode = new PrintNode(env('PRINTNODE_API_KEY'));
-
-                        $response = $printNode->send(new PrintJobs\DeletePrintJobsOfPrintersSet(printerSet: [$record->id]));
-
-                        if ($response->ok()) {
-                            $action->success();
-                        }
-                    })
-                    ->requiresConfirmation()
-                    ->label('Cancel all print jobs')
-                    ->modalDescription('Are you sure you\'d like to cancel all print jobs for this printer?')
-                    ->modalSubmitActionLabel('Proceed')
-                    ->icon('heroicon-s-x-circle')
-                    ->iconButton()
-                    ->color('danger')
-                    ->successNotificationTitle('Print jobs cancelled')
+                PrintNodeActions\CancelPrintJobsOnPrinterAction::make()->printer(fn (Printer $record): Printer => $record)
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
