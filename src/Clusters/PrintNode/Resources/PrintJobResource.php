@@ -2,33 +2,17 @@
 
 namespace Consignr\FilamentPrintNode\Clusters\PrintNode\Resources;
 
-use Exception;
-use Carbon\Carbon;
-use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
-use Filament\Tables\Actions\Action;
-use Filament\Support\Enums\MaxWidth;
-use Illuminate\Support\Facades\Http;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Infolists\Components\Group;
-use Filament\Notifications\Notification;
-use Illuminate\Database\Eloquent\Builder;
-use Filament\Infolists\Components\TextEntry;
-use Consignr\FilamentPrintNode\Api\PrintNode;
 use Consignr\FilamentPrintNode\Models\PrintJob;
-use Filament\Infolists\Components\RepeatableEntry;
 use Consignr\FilamentPrintNode\Enums\PrintJobState;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Consignr\FilamentPrintNode\FilamentPrintNodePlugin;
 use Consignr\FilamentPrintNode\Actions as PrintNodeActions;
 use Consignr\FilamentPrintNode\Clusters\PrintNode as PrintNodeCluster;
-use Consignr\FilamentPrintNode\Api\Requests\PrintJobs\DeletePrintJobsSet;
-use Consignr\FilamentPrintNode\Api\Requests\PrintJobs\GetPrintJobsStates;
 use Consignr\FilamentPrintNode\Clusters\PrintNode\Resources\PrintJobResource\Pages;
-use Consignr\FilamentPrintNode\Clusters\PrintNode\Resources\PrintJobResource\RelationManagers;
 
 class PrintJobResource extends Resource
 {
