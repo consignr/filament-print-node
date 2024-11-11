@@ -42,9 +42,9 @@ class CancelPrintJobAction extends Action
         
         $this->disabled(fn (PrintJob $record): bool => $record->state === PrintJobState::Done);
         
-        $this->action(function (PrintJob $record, CancelPrintJobsAction $action) {
+        $this->action(function (PrintJob $record, CancelPrintJobAction $action) {
 
-            $printNode = new Api\PrintNode(env('PRINTNODE_API_KEY'));
+            $printNode = new Api\PrintNode(config('filament-print-node.api_key'));
 
             $response = $printNode->send(new Api\Requests\PrintJobs\DeletePrintJobsSet(printJobSet: [$record->id]));
            

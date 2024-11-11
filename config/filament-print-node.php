@@ -1,7 +1,9 @@
 <?php
 
-// config for Consignr/filament-print-node
+// config for consignr/filament-print-node
 return [
+    'api_key' => env('PRINTNODE_API_KEY'),
+
     'cluster' => [        
         'navigation_group' => null,
         'navigation_label' => 'Print Node',

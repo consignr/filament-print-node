@@ -23,7 +23,7 @@ class Client extends Model
      */
     public function getRows()
     {
-        $printNode = new Api\PrintNode(env('PRINTNODE_API_KEY'));
+        $printNode = new Api\PrintNode(config('filament-print-node.api_key'));
         
         $response = $printNode->send(new Api\Requests\Clients\GetDownloadClients);
 

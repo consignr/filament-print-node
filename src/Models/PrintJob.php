@@ -71,7 +71,7 @@ class PrintJob extends Model
      */
     public function getRows()
     {
-        $printNode = new PrintNode(env('PRINTNODE_API_KEY'));
+        $printNode = new PrintNode(config('filament-print-node.api_key'));
 
         $response = $printNode->send(new PrintJobs\GetPrintJobs); 
 

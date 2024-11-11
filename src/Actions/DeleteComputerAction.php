@@ -40,7 +40,7 @@ class DeleteComputerAction extends Action
         
         $this->action(function ($record, $livewire) {
 
-            $printNode = new Api\PrintNode(env('PRINTNODE_API_KEY'));
+            $printNode = new Api\PrintNode(config('filament-print-node.api_key'));
 
             $response = $printNode->send(new Api\Requests\Computers\DeleteComputersSet(computerSet: [$record->id]));
 

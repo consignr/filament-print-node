@@ -39,7 +39,7 @@ class ViewStateHistoryAction extends Action
         
         $this->infolist(function (PrintJob $record, $infolist) {
 
-            $printNode = new Api\PrintNode(env('PRINTNODE_API_KEY'));
+            $printNode = new Api\PrintNode(config('filament-print-node.api_key'));
 
             $response = $printNode->send(new Api\Requests\PrintJobs\GetPrintJobsStates(printJobSet: [$record->id]));
 

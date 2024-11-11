@@ -60,7 +60,7 @@ class CancelPrintJobsOnPrinterAction extends Action
         $this->disabled(fn (): bool => $this->getPrinter()?->printJobs()->count() === 0);
         
         $this->action(function (CancelPrintJobsOnPrinterAction $action) {                          
-            $printNode = new Api\PrintNode(env('PRINTNODE_API_KEY'));
+            $printNode = new Api\PrintNode(config('filament-print-node.api_key'));
 
             $response = $printNode->send(new Api\Requests\PrintJobs\DeletePrintJobsOfPrintersSet(printerSet: [$this->getPrinter()->getKey()]));
             

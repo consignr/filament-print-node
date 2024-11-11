@@ -17,7 +17,7 @@ class Dashboard extends Page
 
     protected function getHeaderWidgets(): array
     {
-        $printNode = new Api\PrintNode(env('PRINTNODE_API_KEY'));
+        $printNode = new Api\PrintNode(config('filament-print-node.api_key'));
 
         $response = $printNode->send(new Api\Requests\GetWhoAmI);
 

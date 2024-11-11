@@ -162,7 +162,7 @@ class CreatePrintJobAction extends Action
             
             $options = $this->getOptions() ?: $data;
             
-            $printNode = new PrintNode(env('PRINTNODE_API_KEY'));
+            $printNode = new PrintNode(config('filament-print-node.api_key'));
 
             $request = new PrintJobs\PostPrintJob;
 
