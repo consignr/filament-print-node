@@ -33,7 +33,7 @@ class CancelPrintJobsOnPrinterAction extends Action
     {
         parent::setUp();     
 
-        $this->label('Cancel Print Jobs');
+        $this->label('Clear Queue');
 
         $this->icon('heroicon-s-x-circle');
 
