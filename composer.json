@@ -13,7 +13,8 @@
         "filament/filament": "^3.0",
         "spatie/laravel-package-tools": "^1.15.0",
         "calebporzio/sushi" : "^2.5",
-        "saloonphp/laravel-plugin": "^3.5"
+        "saloonphp/laravel-plugin": "^3.5",
+        "owenvoke/blade-fontawesome": "^2.7"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
