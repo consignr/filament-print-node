@@ -36,6 +36,8 @@ class PrintNodeAccountOverview extends Widget implements HasForms, HasInfolists
                     ->description('Print Node account details')
                     ->headerActions([
                         Action::make('check_credentials')
+                            ->icon('heroicon-o-key')
+                            ->link()
                             ->action(function (Action $action) {
                                 $printNode = new Api\PrintNode(env('PRINTNODE_API_KEY'));
 
@@ -62,6 +64,8 @@ class PrintNodeAccountOverview extends Widget implements HasForms, HasInfolists
                                     ->body('The provided credentials are invalid. Please check your API key and try again.')
                             ),
                         Action::make('ping')
+                            ->icon('heroicon-o-signal')
+                            ->link()
                             ->action(function (Action $action) {
                                 $printNode = new Api\PrintNode(env('PRINTNODE_API_KEY'));
 
