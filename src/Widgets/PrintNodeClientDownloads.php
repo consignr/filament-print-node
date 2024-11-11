@@ -39,16 +39,12 @@ class PrintNodeClientDownloads extends BaseWidget
                 TextColumn::make('filename')
                     ->wrap(),
                 TextColumn::make('filesize')
-                    ->formatStateUsing(fn ($state): string => Number::fileSize($state, precision: 1)),
+                    ->formatStateUsing(fn (int $state): string => Number::fileSize($state, precision: 1)),
             ])
             ->actions([
                 Action::make('download')
                     ->icon('heroicon-o-arrow-down-on-square')
-                    ->action(function (Client $record) {
-                        return response()->streamDownload(function () use ($record) {
-                            echo file_get_contents($record->url);
-                        }, $record->filename);
-                    })
+                    ->url(fn (Client $record) => $record->url)
             ]);
     }
 }
